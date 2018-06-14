@@ -1,4 +1,4 @@
-from base import YoukuOpenApi
+from youku3.base import YoukuOpenApi
 
 import requests
 import webbrowser

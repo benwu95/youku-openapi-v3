@@ -8,7 +8,7 @@ except ImportError:
 
 
 class YoukuOpenApi(object):
-    def __init__(self, tcp='https', key_file):
+    def __init__(self, key_file, tcp='https'):
         if tcp in ['http', 'https']:
             self.tcp = tcp
         else:
@@ -38,7 +38,7 @@ class YoukuOpenApi(object):
             checksum += (k + str(param[k]))
         return checksum
 
-    def get_api_url(self, url=None, sys_param, other_param):
+    def get_api_url(self, sys_param, other_param, url=None):
         if url is None:
             return self.url + json.dumps(sys_param) + '&' + urlencode(other_param)
         else:
