@@ -11,8 +11,12 @@ except ImportError:
 
 
 class YoukuOAuth(YoukuOpenApi):
-    def __init__(self, **kwargs):
+    def __init__(self, proxies=None, **kwargs):
         super(YoukuOAuth, self).__init__(**kwargs)
+        self.__use_proxy = 0
+        if proxies:
+            self.proxies = proxies
+            self.__use_proxy = 1
         self.sys_param = {
             'action': '',
             'client_id': self.client_id,
@@ -20,7 +24,7 @@ class YoukuOAuth(YoukuOpenApi):
             'version': '3.0'
         }
 
-    def get_authorize_code(self):
+    def get_authorize_code(self, redirect_uri):
         '''
         return:
             authorize code
@@ -29,7 +33,7 @@ class YoukuOAuth(YoukuOpenApi):
         param = {
             'client_id': self.client_id,
             'response_type': 'code',
-            'redirect_uri': self.redirect_uri
+            'redirect_uri': redirect_uri
         }
 
         webbrowser.open_new(url + urlencode(param))
@@ -47,12 +51,9 @@ class YoukuOAuth(YoukuOpenApi):
         self.sys_param['timestamp'] = self.get_time()
 
         # get sign
-        check_param = self.sys_param
-        code = self.get_authorize_code()
-        other_param = {'code': code}
-        check_param.update(other_param)
-        checksum = self.get_param_checksum(check_param)
-        self.sys_param.update({'sign': self.get_checksum_md5(checksum)})
+        other_param = {'code': self.get_authorize_code()}
+        sign = self.get_md5_sign(self.sys_param, other_param)
+        self.sys_param.update({'sign': sign})
 
         post_url = self.get_api_url(sys_param=self.sys_param, other_param=other_param)
         del self.sys_param['sign']
@@ -74,11 +75,9 @@ class YoukuOAuth(YoukuOpenApi):
         self.sys_param['timestamp'] = self.get_time()
 
         # get sign
-        check_param = self.sys_param
         other_param = {'refreshToken': refresh_token}
-        check_param.update(other_param)
-        checksum = self.get_param_checksum(check_param)
-        self.sys_param.update({'sign': self.get_checksum_md5(checksum)})
+        sign = self.get_md5_sign(self.sys_param, other_param)
+        self.sys_param.update({'sign': sign})
 
         post_url = self.get_api_url(sys_param=self.sys_param, other_param=other_param)
         del self.sys_param['sign']
