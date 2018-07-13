@@ -29,7 +29,7 @@ class YoukuOpenApi(object):
         checksum = ''
         for k in sorted(check_param.keys()):
             checksum += (k + str(check_param[k]))
-        return hashlib.md5(checksum + self.secret_key).hexdigest()
+        return hashlib.md5((checksum + self.secret_key).encode('utf-8')).hexdigest()
 
     def get_api_url(self, sys_param, other_param, url=None):
         if url is None:
